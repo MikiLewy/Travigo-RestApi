@@ -1,12 +1,12 @@
-import express, { NextFunction } from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
-import destinationsRoutes from './routes/destinations';
-import scheduleRoutes from './routes/schedule';
 import path from 'path';
 import { CustomError } from './class/CustomError';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
+import destinationsRoutes from './routes/destinations';
+import scheduleRoutes from './routes/schedule';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

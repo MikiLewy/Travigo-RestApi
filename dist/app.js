@@ -6,11 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const body_parser_1 = __importDefault(require("body-parser"));
-const destinations_1 = __importDefault(require("./routes/destinations"));
-const schedule_1 = __importDefault(require("./routes/schedule"));
 const path_1 = __importDefault(require("path"));
 const multer_1 = __importDefault(require("multer"));
 const uuid_1 = require("uuid");
+const destinations_1 = __importDefault(require("./routes/destinations"));
+const schedule_1 = __importDefault(require("./routes/schedule"));
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path_1.default.join(__dirname, '..', 'images'));

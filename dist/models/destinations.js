@@ -20,17 +20,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const scheduleSchema = new mongoose_1.Schema({
-    title: {
+const destinationsSchema = new mongoose_1.Schema({
+    city: {
         type: String,
         required: true,
     },
-    place: {
+    continent: {
         type: String,
         required: true,
     },
     date: {
         type: String,
+        required: true,
+    },
+    rating: {
+        type: String,
+        required: true,
+    },
+    price: {
+        type: Number,
         required: true,
     },
     description: {
@@ -41,9 +49,5 @@ const scheduleSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
-    creator: {
-        type: Object,
-        required: true,
-    },
-}, { timestamps: true });
-exports.default = mongoose_1.default.model('Schedule', scheduleSchema);
+});
+exports.default = mongoose_1.default.model('Destinations', destinationsSchema);
