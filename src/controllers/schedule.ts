@@ -38,7 +38,8 @@ export const getEvent = async (req: Request, res: Response, next: NextFunction) 
     const event = await Schedule.findById(eventId);
     if (!event) {
       const error = new CustomError('Could not find event', 404);
-      throw error;
+      next(error);
+      return;
     }
     res.status(200).json({
       message: 'Successfully fetched event',
@@ -54,18 +55,20 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new CustomError('Validation failed, entered data is incorrect', 422);
-    throw error;
+    next(error);
+    return;
   }
 
   if (!req.file) {
     const error = new CustomError('No image provided', 422);
-    throw error;
+    next(error);
+    return;
   }
   const title = req.body.title;
   const date = req.body.date;
   const place = req.body.place;
   const description = req.body.description;
-  const imageUrl = req.file.filename;
+  const imageUrl = req.file!.filename;
   const event = new Schedule({
     title: title,
     date: date,
@@ -93,7 +96,8 @@ export const editEvent = async (req: Request, res: Response, next: NextFunction)
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new CustomError('Validation failed, entered data is incorrect', 422);
-    throw error;
+    next(error);
+    return;
   }
   try {
     const updatedTitle = req.body.title;
@@ -104,7 +108,8 @@ export const editEvent = async (req: Request, res: Response, next: NextFunction)
     const event = await Schedule.findById(eventId);
     if (!event) {
       const error = new CustomError('Could not find event', 404);
-      throw error;
+      next(error);
+      return;
     }
     if (req.file) {
       imageUrl = req.file.filename;
@@ -114,7 +119,8 @@ export const editEvent = async (req: Request, res: Response, next: NextFunction)
 
     if (!imageUrl) {
       const error = new CustomError('No image provided', 422);
-      throw error;
+      next(error);
+      return;
     }
 
     if (imageUrl !== event.imageUrl) {
@@ -142,7 +148,8 @@ export const deleteEvent = async (req: Request, res: Response, next: NextFunctio
     const event = await Schedule.findById(eventId);
     if (!event) {
       const error = new CustomError('Could not find event', 404);
-      throw error;
+      next(error);
+      return;
     }
     clearImage(event.imageUrl);
     await Schedule.findByIdAndRemove(eventId);

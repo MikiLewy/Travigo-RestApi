@@ -25,7 +25,7 @@ const getDestinations = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     }
     catch (err) {
         const error = new CustomError_1.CustomError('Something went wrong', 500);
-        throw error;
+        next(error);
     }
 });
 exports.getDestinations = getDestinations;
@@ -41,7 +41,7 @@ const getTopDestinations = (req, res, next) => __awaiter(void 0, void 0, void 0,
     }
     catch (err) {
         const error = new CustomError_1.CustomError('Something went wrong', 500);
-        throw error;
+        next(error);
     }
 });
 exports.getTopDestinations = getTopDestinations;
@@ -51,13 +51,14 @@ const getDestination = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         const destination = yield destinations_1.default.findById(destinationId);
         if (!destination) {
             const error = new CustomError_1.CustomError('Could not find destination', 404);
-            throw error;
+            next(error);
+            return;
         }
         res.status(200).json({ message: 'Successfully fetched destination', destination: destination });
     }
     catch (err) {
         const error = new CustomError_1.CustomError('Something went wrong', 500);
-        throw error;
+        next(error);
     }
 });
 exports.getDestination = getDestination;

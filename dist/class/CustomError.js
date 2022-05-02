@@ -5,10 +5,7 @@ class CustomError extends Error {
     constructor(message, statusCode) {
         super(message);
         this.statusCode = statusCode;
-        Object.setPrototypeOf(this, CustomError.prototype);
-    }
-    getErrorMessage() {
-        return this.message;
+        this.message = message;
     }
 }
 exports.CustomError = CustomError;
