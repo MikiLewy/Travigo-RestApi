@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import path from 'path';
@@ -7,7 +7,10 @@ import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import destinationsRoutes from './routes/destinations';
 import scheduleRoutes from './routes/schedule';
+import authRoutes from './routes/auth';
+import { config } from 'dotenv';
 
+config();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, path.join(__dirname, '..', 'images'));
@@ -38,17 +41,17 @@ app.use(bodyParser.json());
 app.use(multer({ storage: storage, fileFilter: fileFilter }).single('image'));
 app.use('/images', express.static(path.join(__dirname, '..', 'images')));
 
+app.use('/auth', authRoutes);
 app.use(destinationsRoutes);
 app.use('/schedule', scheduleRoutes);
-app.use((err: CustomError, req: any, res: any, next: any) => {
-  console.log(err);
-  const status = err.statusCode || 500;
-  const message = err.message;
-  res.status(status).json({ message: message });
+app.use((error: CustomError, req: Request, res: Response, next: NextFunction) => {
+  const status = error.statusCode || 500;
+  const message = error.message || 'Something went wrond';
+  res.status(status).json({ message: message, status: status });
 });
 
 mongoose
-  .connect('mongodb+srv://mikolaj:bazaNode@cluster0.baoax.mongodb.net/travigo?retryWrites=true&w=majority')
+  .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWD}@cluster0.baoax.mongodb.net/travigo?retryWrites=true&w=majority`)
   .then((result) => {
     app.listen(8080);
   })

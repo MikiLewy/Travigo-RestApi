@@ -11,7 +11,7 @@ export const getDestinations = async (req: Request, res: Response, next: NextFun
     });
   } catch (err) {
     const error = new CustomError('Something went wrong', 500);
-    throw error;
+    next(error);
   }
 };
 
@@ -26,7 +26,7 @@ export const getTopDestinations = async (req: Request, res: Response, next: Next
     });
   } catch (err) {
     const error = new CustomError('Something went wrong', 500);
-    throw error;
+    next(error);
   }
 };
 
@@ -36,11 +36,12 @@ export const getDestination = async (req: Request, res: Response, next: NextFunc
     const destination = await Destinations.findById(destinationId);
     if (!destination) {
       const error = new CustomError('Could not find destination', 404);
-      throw error;
+      next(error);
+      return;
     }
     res.status(200).json({ message: 'Successfully fetched destination', destination: destination });
   } catch (err) {
     const error = new CustomError('Something went wrong', 500);
-    throw error;
+    next(error);
   }
 };

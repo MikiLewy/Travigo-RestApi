@@ -11,6 +11,9 @@ const multer_1 = __importDefault(require("multer"));
 const uuid_1 = require("uuid");
 const destinations_1 = __importDefault(require("./routes/destinations"));
 const schedule_1 = __importDefault(require("./routes/schedule"));
+const auth_1 = __importDefault(require("./routes/auth"));
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)();
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path_1.default.join(__dirname, '..', 'images'));
@@ -37,16 +40,16 @@ app.use((req, res, next) => {
 app.use(body_parser_1.default.json());
 app.use((0, multer_1.default)({ storage: storage, fileFilter: fileFilter }).single('image'));
 app.use('/images', express_1.default.static(path_1.default.join(__dirname, '..', 'images')));
+app.use('/auth', auth_1.default);
 app.use(destinations_1.default);
 app.use('/schedule', schedule_1.default);
-app.use((err, req, res, next) => {
-    console.log(err);
-    const status = err.statusCode || 500;
-    const message = err.message;
-    res.status(status).json({ message: message });
+app.use((error, req, res, next) => {
+    const status = error.statusCode || 500;
+    const message = error.message || 'Something went wrond';
+    res.status(status).json({ message: message, status: status });
 });
 mongoose_1.default
-    .connect('mongodb+srv://mikolaj:bazaNode@cluster0.baoax.mongodb.net/travigo?retryWrites=true&w=majority')
+    .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWD}@cluster0.baoax.mongodb.net/travigo?retryWrites=true&w=majority`)
     .then((result) => {
     app.listen(8080);
 })

@@ -53,7 +53,8 @@ const getEvent = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         const event = yield schedule_1.default.findById(eventId);
         if (!event) {
             const error = new CustomError_1.CustomError('Could not find event', 404);
-            throw error;
+            next(error);
+            return;
         }
         res.status(200).json({
             message: 'Successfully fetched event',
@@ -70,11 +71,13 @@ const createEvent = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         const error = new CustomError_1.CustomError('Validation failed, entered data is incorrect', 422);
-        throw error;
+        next(error);
+        return;
     }
     if (!req.file) {
         const error = new CustomError_1.CustomError('No image provided', 422);
-        throw error;
+        next(error);
+        return;
     }
     const title = req.body.title;
     const date = req.body.date;
@@ -109,7 +112,8 @@ const editEvent = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         const error = new CustomError_1.CustomError('Validation failed, entered data is incorrect', 422);
-        throw error;
+        next(error);
+        return;
     }
     try {
         const updatedTitle = req.body.title;
@@ -120,7 +124,8 @@ const editEvent = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         const event = yield schedule_1.default.findById(eventId);
         if (!event) {
             const error = new CustomError_1.CustomError('Could not find event', 404);
-            throw error;
+            next(error);
+            return;
         }
         if (req.file) {
             imageUrl = req.file.filename;
@@ -130,7 +135,8 @@ const editEvent = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         }
         if (!imageUrl) {
             const error = new CustomError_1.CustomError('No image provided', 422);
-            throw error;
+            next(error);
+            return;
         }
         if (imageUrl !== event.imageUrl) {
             (0, clearImage_1.clearImage)(event.imageUrl);
@@ -158,7 +164,8 @@ const deleteEvent = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         const event = yield schedule_1.default.findById(eventId);
         if (!event) {
             const error = new CustomError_1.CustomError('Could not find event', 404);
-            throw error;
+            next(error);
+            return;
         }
         (0, clearImage_1.clearImage)(event.imageUrl);
         yield schedule_1.default.findByIdAndRemove(eventId);

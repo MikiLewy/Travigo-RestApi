@@ -1,17 +1,19 @@
 import { Router } from 'express';
 import { getEvent, getEvents, editEvent, createEvent, deleteEvent, getLatestEvents } from '../controllers/schedule';
 import { body } from 'express-validator';
+import isAuth from '../middleware/isAuth';
 
 const router = Router();
 
-router.get('/events', getEvents);
+router.get('/events', isAuth, getEvents);
 
-router.get('/latest-events', getLatestEvents);
+router.get('/latest-events', isAuth, getLatestEvents);
 
-router.get('/event/:id', getEvent);
+router.get('/event/:id', isAuth, getEvent);
 
 router.post(
   '/create-event',
+  isAuth,
   [
     body('title').trim().isLength({ min: 4 }).notEmpty(),
     body('date').trim().isLength({ min: 4 }).notEmpty(),
@@ -23,6 +25,7 @@ router.post(
 
 router.put(
   '/edit-event/:id',
+  isAuth,
   [
     body('title').trim().isLength({ min: 4 }).notEmpty(),
     body('date').trim().isLength({ min: 4 }).notEmpty(),
@@ -32,6 +35,6 @@ router.put(
   editEvent
 );
 
-router.delete('/delete-event/:id', deleteEvent);
+router.delete('/delete-event/:id', isAuth, deleteEvent);
 
 export default router;
