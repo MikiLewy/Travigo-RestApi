@@ -17,9 +17,10 @@ const express_validator_1 = require("express-validator");
 const schedule_1 = __importDefault(require("../models/schedule"));
 const CustomError_1 = require("../class/CustomError");
 const clearImage_1 = require("../util/clearImage");
+const user_1 = __importDefault(require("../models/user"));
 const getEvents = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const events = yield schedule_1.default.find();
+        const events = yield schedule_1.default.find({ creator: req.userId });
         res.status(200).json({
             message: 'Successfully fetched events',
             events: events,
@@ -33,7 +34,7 @@ const getEvents = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 exports.getEvents = getEvents;
 const getLatestEvents = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const events = yield schedule_1.default.find()
+        const events = yield schedule_1.default.find({ creator: req.userId })
             .limit(4)
             .sort([['date', 1]]);
         res.status(200).json({
@@ -84,21 +85,33 @@ const createEvent = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     const place = req.body.place;
     const description = req.body.description;
     const imageUrl = req.file.filename;
+    let creator;
     const event = new schedule_1.default({
         title: title,
         date: date,
         place: place,
         description: description,
         imageUrl: imageUrl,
-        creator: {
-            name: 'test',
-        },
+        creator: req.userId,
     });
     try {
+        const user = yield user_1.default.findById(req.userId);
+        if (!user) {
+            const error = new CustomError_1.CustomError('Could not find the user', 404);
+            next(error);
+            return;
+        }
+        creator = user;
+        user.schedule.push(event);
+        yield user.save();
         yield event.save();
         res.status(201).json({
             message: 'Successfully created event',
             event: event,
+            creator: {
+                _id: creator._id,
+                name: creator._name,
+            },
         });
     }
     catch (err) {
@@ -169,6 +182,9 @@ const deleteEvent = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         }
         (0, clearImage_1.clearImage)(event.imageUrl);
         yield schedule_1.default.findByIdAndRemove(eventId);
+        const user = yield user_1.default.findById(req.userId);
+        user.schedule.pull(eventId);
+        yield user.save();
         res.status(200).json({ message: 'Deleted event' });
     }
     catch (err) {
