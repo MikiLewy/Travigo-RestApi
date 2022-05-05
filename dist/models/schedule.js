@@ -42,7 +42,8 @@ const scheduleSchema = new mongoose_1.Schema({
         required: true,
     },
     creator: {
-        type: Object,
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
 }, { timestamps: true });

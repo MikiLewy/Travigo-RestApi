@@ -3,10 +3,11 @@ import { validationResult } from 'express-validator';
 import Schedule from '../models/schedule';
 import { CustomError } from '../class/CustomError';
 import { clearImage } from '../util/clearImage';
+import User from '../models/user';
 
 export const getEvents = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const events = await Schedule.find();
+    const events = await Schedule.find({ creator: req.userId });
     res.status(200).json({
       message: 'Successfully fetched events',
       events: events,
@@ -19,7 +20,7 @@ export const getEvents = async (req: Request, res: Response, next: NextFunction)
 
 export const getLatestEvents = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const events = await Schedule.find()
+    const events = await Schedule.find({ creator: req.userId })
       .limit(4)
       .sort([['date', 1]]);
     res.status(200).json({
@@ -69,21 +70,33 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
   const place = req.body.place;
   const description = req.body.description;
   const imageUrl = req.file!.filename;
+  let creator;
   const event = new Schedule({
     title: title,
     date: date,
     place: place,
     description: description,
     imageUrl: imageUrl,
-    creator: {
-      name: 'test',
-    },
+    creator: req.userId,
   });
   try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      const error = new CustomError('Could not find the user', 404);
+      next(error);
+      return;
+    }
+    creator = user;
+    user.schedule.push(event);
+    await user.save();
     await event.save();
     res.status(201).json({
       message: 'Successfully created event',
       event: event,
+      creator: {
+        _id: creator._id,
+        name: creator._name,
+      },
     });
   } catch (err) {
     err = new CustomError('Something went wrong', 500);
@@ -153,6 +166,9 @@ export const deleteEvent = async (req: Request, res: Response, next: NextFunctio
     }
     clearImage(event.imageUrl);
     await Schedule.findByIdAndRemove(eventId);
+    const user = await User.findById(req.userId);
+    user.schedule.pull(eventId);
+    await user.save();
     res.status(200).json({ message: 'Deleted event' });
   } catch (err) {
     err = new CustomError('Something went wrong', 500);

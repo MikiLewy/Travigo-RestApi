@@ -39,5 +39,11 @@ const userSchema = new mongoose_1.Schema({
             ref: 'Schedule',
         },
     ],
+    favorites: [
+        {
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'Destinations',
+        },
+    ],
 });
 exports.default = mongoose_1.default.model('User', userSchema);
