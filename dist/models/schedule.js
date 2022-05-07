@@ -44,7 +44,6 @@ const scheduleSchema = new mongoose_1.Schema({
     creator: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
     },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model('Schedule', scheduleSchema);

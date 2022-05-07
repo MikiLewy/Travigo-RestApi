@@ -12,9 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDestination = exports.getTopDestinations = exports.getDestinations = void 0;
+exports.deleteFromFavorites = exports.getFavorites = exports.addToFavorites = exports.getDestination = exports.getTopDestinations = exports.getDestinations = void 0;
 const destinations_1 = __importDefault(require("../models/destinations"));
 const CustomError_1 = require("../class/CustomError");
+const user_1 = __importDefault(require("../models/user"));
+const favorites_1 = __importDefault(require("../models/favorites"));
 const getDestinations = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const destinations = yield destinations_1.default.find();
@@ -62,3 +64,66 @@ const getDestination = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getDestination = getDestination;
+const addToFavorites = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const destinationId = req.params.id;
+    try {
+        const destination = yield destinations_1.default.findById(destinationId);
+        const user = yield user_1.default.findById(req.userId);
+        const existingItem = yield favorites_1.default.find({ destination: destinationId, creator: req.userId });
+        if (existingItem.length > 0) {
+            const error = new CustomError_1.CustomError('Destination has already been added to favorites', 409);
+            next(error);
+            return;
+        }
+        if (!destination) {
+            const error = new CustomError_1.CustomError('Could not find destination', 404);
+            next(error);
+            return;
+        }
+        const favoriteItem = new favorites_1.default({
+            destination: destination,
+            creator: req.userId,
+        });
+        user.favorites.push(favoriteItem);
+        yield user.save();
+        yield favoriteItem.save();
+        res.status(200).json({ message: 'Successfully added destination to favorites' });
+    }
+    catch (err) {
+        const error = new CustomError_1.CustomError('Something went wrong', 500);
+        next(error);
+    }
+});
+exports.addToFavorites = addToFavorites;
+const getFavorites = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const favorites = yield favorites_1.default.find({ creator: req.userId }).populate('destination');
+        res.status(200).json({ message: 'Succesfully fetched favorites', favorites: favorites });
+    }
+    catch (err) {
+        const error = new CustomError_1.CustomError('Something went wrong', 500);
+        next(error);
+    }
+});
+exports.getFavorites = getFavorites;
+const deleteFromFavorites = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const favoritesId = req.params.id;
+    try {
+        const item = yield favorites_1.default.findById(favoritesId);
+        if (!item) {
+            const error = new CustomError_1.CustomError('Could not find item', 404);
+            next(error);
+            return;
+        }
+        yield favorites_1.default.findByIdAndRemove(favoritesId);
+        const user = yield user_1.default.findById(req.userId);
+        user.favorites.pull(favoritesId);
+        yield user.save();
+        res.status(200).json({ message: 'Successfully deleted item' });
+    }
+    catch (err) {
+        err = new CustomError_1.CustomError('Something went wrong', 500);
+        next(err);
+    }
+});
+exports.deleteFromFavorites = deleteFromFavorites;
