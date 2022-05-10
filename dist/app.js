@@ -13,7 +13,10 @@ const destinations_1 = __importDefault(require("./routes/destinations"));
 const schedule_1 = __importDefault(require("./routes/schedule"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const expenses_1 = __importDefault(require("./routes/expenses"));
+const tickets_1 = __importDefault(require("./routes/tickets"));
 const dotenv_1 = require("dotenv");
+const helmet_1 = __importDefault(require("helmet"));
+const compression_1 = __importDefault(require("compression"));
 (0, dotenv_1.config)();
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
@@ -45,14 +48,17 @@ app.use('/auth', auth_1.default);
 app.use(destinations_1.default);
 app.use('/schedule', schedule_1.default);
 app.use(expenses_1.default);
+app.use(tickets_1.default);
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message || 'Something went wrond';
     res.status(status).json({ message: message, status: status });
 });
+app.use((0, helmet_1.default)());
+app.use((0, compression_1.default)());
 mongoose_1.default
-    .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWD}@cluster0.baoax.mongodb.net/travigo?retryWrites=true&w=majority`)
+    .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWD}@cluster0.baoax.mongodb.net/${process.env.DB_DEFAULTDB}?retryWrites=true&w=majority`)
     .then((result) => {
-    app.listen(8080);
+    app.listen(process.env.PORT || 8080);
 })
     .catch((err) => console.log(err));

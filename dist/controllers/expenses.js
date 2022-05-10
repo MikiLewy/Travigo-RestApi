@@ -16,6 +16,7 @@ exports.buyTicket = exports.addMoney = exports.getExpenses = void 0;
 const CustomError_1 = require("../class/CustomError");
 const destinations_1 = __importDefault(require("../models/destinations"));
 const expenses_1 = __importDefault(require("../models/expenses"));
+const tickets_1 = __importDefault(require("../models/tickets"));
 const user_1 = __importDefault(require("../models/user"));
 const getExpenses = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -74,6 +75,12 @@ const buyTicket = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             return;
         }
         user.totalBalance -= destination.price;
+        const ticket = new tickets_1.default({
+            user: req.userId,
+            destination: destinationId,
+        });
+        user.tickets.push(ticket);
+        yield ticket.save();
         yield expenses.save();
         yield user.save();
         res.status(200).json({ message: 'Succefully add to expenses', totalMoney: user.totalBalance, expenses: expenses });

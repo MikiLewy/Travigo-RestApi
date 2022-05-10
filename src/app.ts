@@ -9,7 +9,10 @@ import destinationsRoutes from './routes/destinations';
 import scheduleRoutes from './routes/schedule';
 import authRoutes from './routes/auth';
 import expensesRoutes from './routes/expenses';
+import ticketsRoutes from './routes/tickets';
 import { config } from 'dotenv';
+import helmet from 'helmet';
+import compression from 'compression';
 
 config();
 const storage = multer.diskStorage({
@@ -46,15 +49,20 @@ app.use('/auth', authRoutes);
 app.use(destinationsRoutes);
 app.use('/schedule', scheduleRoutes);
 app.use(expensesRoutes);
+app.use(ticketsRoutes);
 app.use((error: CustomError, req: Request, res: Response, next: NextFunction) => {
   const status = error.statusCode || 500;
   const message = error.message || 'Something went wrond';
   res.status(status).json({ message: message, status: status });
 });
+app.use(helmet());
+app.use(compression());
 
 mongoose
-  .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWD}@cluster0.baoax.mongodb.net/travigo?retryWrites=true&w=majority`)
+  .connect(
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWD}@cluster0.baoax.mongodb.net/${process.env.DB_DEFAULTDB}?retryWrites=true&w=majority`
+  )
   .then((result) => {
-    app.listen(8080);
+    app.listen(process.env.PORT || 8080);
   })
   .catch((err) => console.log(err));

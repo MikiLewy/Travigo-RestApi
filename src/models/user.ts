@@ -31,6 +31,14 @@ const userSchema = new Schema({
     type: Number,
     default: 500,
   },
+  tickets: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Ticket',
+      required: false,
+      sparse: true,
+    },
+  ],
 });
 
 export default mongoose.model('User', userSchema);
