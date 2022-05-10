@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import destinationsRoutes from './routes/destinations';
 import scheduleRoutes from './routes/schedule';
 import authRoutes from './routes/auth';
+import expensesRoutes from './routes/expenses';
 import { config } from 'dotenv';
 
 config();
@@ -44,6 +45,7 @@ app.use('/images', express.static(path.join(__dirname, '..', 'images')));
 app.use('/auth', authRoutes);
 app.use(destinationsRoutes);
 app.use('/schedule', scheduleRoutes);
+app.use(expensesRoutes);
 app.use((error: CustomError, req: Request, res: Response, next: NextFunction) => {
   const status = error.statusCode || 500;
   const message = error.message || 'Something went wrond';

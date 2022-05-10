@@ -27,6 +27,10 @@ const userSchema = new Schema({
       sparse: true,
     },
   ],
+  totalBalance: {
+    type: Number,
+    default: 500,
+  },
 });
 
 export default mongoose.model('User', userSchema);

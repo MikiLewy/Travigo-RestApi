@@ -63,7 +63,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
     if (process.env.TOKEN_SECRET) {
       const token = sign({ email: user.email, userId: user._id.toString() }, process.env.TOKEN_SECRET, { expiresIn: '1h' });
-      res.status(200).json({ token: token, userId: user._id.toString() });
+      res.status(200).json({ token: token, userId: user._id.toString(), userName: user.name });
     }
   } catch (err) {
     const error = new CustomError('Something went wrong', 500);

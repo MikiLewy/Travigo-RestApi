@@ -12,6 +12,7 @@ const uuid_1 = require("uuid");
 const destinations_1 = __importDefault(require("./routes/destinations"));
 const schedule_1 = __importDefault(require("./routes/schedule"));
 const auth_1 = __importDefault(require("./routes/auth"));
+const expenses_1 = __importDefault(require("./routes/expenses"));
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
 const storage = multer_1.default.diskStorage({
@@ -43,6 +44,7 @@ app.use('/images', express_1.default.static(path_1.default.join(__dirname, '..',
 app.use('/auth', auth_1.default);
 app.use(destinations_1.default);
 app.use('/schedule', schedule_1.default);
+app.use(expenses_1.default);
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message || 'Something went wrond';
