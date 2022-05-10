@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { CustomError } from '../class/CustomError';
 import Destinations from '../models/destinations';
 import Expenses from '../models/expenses';
+import Tickets from '../models/tickets';
 import User from '../models/user';
 
 export const getExpenses = async (req: Request, res: Response, next: NextFunction) => {
@@ -62,6 +63,12 @@ export const buyTicket = async (req: Request, res: Response, next: NextFunction)
       return;
     }
     user.totalBalance -= destination.price;
+    const ticket = new Tickets({
+      user: req.userId,
+      destination: destinationId,
+    });
+    user.tickets.push(ticket);
+    await ticket.save();
     await expenses.save();
     await user.save();
     res.status(200).json({ message: 'Succefully add to expenses', totalMoney: user.totalBalance, expenses: expenses });
